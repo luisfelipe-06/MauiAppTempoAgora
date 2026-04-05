@@ -14,9 +14,21 @@ namespace MauiAppTempoAgora.Services
             string url = $"https://api.openweathermap.org/data/2.5/weather?" +
                          $"q={cidade}&units=metric&appid={chave}";
 
+            // Verifica conexão com a internet antes de fazer a requisição.
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+            {
+                throw new Exception("Sem conexão com a internet. Verifique sua conexão e tente novamente.");
+            }
+
             using (HttpClient client = new HttpClient())
             {
                 HttpResponseMessage resp = await client.GetAsync(url);
+
+                // Verifica o StatusCode da resposta.
+                if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new Exception($"Cidade \"{cidade}\" não encontrada. Verifique o nome e tente novamente.");
+                }
 
                 if (resp.IsSuccessStatusCode)
                 {
